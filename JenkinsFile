@@ -1,0 +1,44 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Install Dependencies') {
+
+            steps {
+
+                sh 'npm install'
+            }
+        }
+
+        stage('Prisma Generate') {
+
+            steps {
+
+                sh 'npx prisma generate'
+            }
+        }
+
+        stage('Start Application') {
+
+            steps {
+
+                sh 'node -v'
+                sh 'npm -v'
+            }
+        }
+    }
+
+    post {
+
+        success {
+
+            echo 'Pipeline executada com sucesso!'
+        }
+
+        failure {
+
+            echo 'Erro na pipeline!'
+        }
+    }

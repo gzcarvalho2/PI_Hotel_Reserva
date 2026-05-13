@@ -1,0 +1,15 @@
+services:
+
+  hotel-reserva:
+
+    build: .
+
+    container_name: hotel-reserva
+
+    ports:
+      - "9532:9532"
+
+    env_file:
+      - .env
+
+    restart: always
