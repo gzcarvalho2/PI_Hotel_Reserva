@@ -1,24 +1,23 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
-model Reserva{
-  `reserva_id` INT NOT NULL AUTO_INCREMENT,
-  `reserva_checkin` DATETIME NOT NULL,
-  `reserva_checkout` DATETIME NOT NULL,
-  `reserva_status` INT NOT NULL,
-  `cliente_id` INT NULL,
-  `quarto_id` INT NULL DEFAULT NULL,
-  `status_pagamento` INT NULL,
-  `tipo_quarto_id` INT NOT NULL,
+model Reserva {
+  reserva_id       Int      @id @default(autoincrement())
+  reserva_checkin  DateTime
+  reserva_checkout DateTime
+  reserva_status   Int
+  cliente_id       Int?
+  quarto_id        Int?
+  status_pagamento Int?
+  tipo_quarto_id   Int
+
+  @@index([cliente_id])
+  @@index([quarto_id])
+  @@index([reserva_checkin, reserva_checkout])
 }
