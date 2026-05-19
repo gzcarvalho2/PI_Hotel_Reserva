@@ -1,5 +1,5 @@
 const restify = require("restify");
-const ReservaController = require("./controllers/reserva.contoller");
+const ReservaController = require("./controllers/reserva.controller");
 
 const server = restify.createServer({ 
   name: "api-reserva-hotel" 
