@@ -5,14 +5,15 @@ const { connectRabbitMQ } = require('./config/rabbitmq');
 const { iniciarConsumidorPagamento } = require('./consumers/pagamento.consumer');
 const { iniciarConsumidorQuarto } = require('./consumers/quarto.consumer');
 const { iniciarConsumidorCliente } = require('./consumers/cliente.consumer');
-
+const ReservaController = require('./controllers/reserva.controller');
 const server = restify.createServer();
 server.use(restify.plugins.bodyParser());
 
-require('./routes/auth.routes')(server);
-require('./routes/quarto.routes')(server);
-require('./routes/tipoQuarto.routes')(server);
-require('./routes/foto.routes')(server);
+server.get("/reserva", ReservaController.listar); 
+server.post("/reserva", ReservaController.criar); 
+server.get("/reserva/:id", ReservaController.buscarPorId); 
+server.put("/reserva/:id", ReservaController.atualizar); 
+server.del("/reserva/:id", ReservaController.deletar);
 
 // Altere para uma função async para poder usar o await no RabbitMQ
 const PORT = 9532;
