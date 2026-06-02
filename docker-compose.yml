@@ -13,9 +13,3 @@ services:
       npx prisma db push &&
       npm run dev
       "
-    networks:          # ADICIONADO AQUI
-      - hotel-network
-
-networks:
-  hotel-network:
-    external: true

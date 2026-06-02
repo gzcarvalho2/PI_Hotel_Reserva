@@ -1,6 +1,9 @@
 // Importa a instância do Prisma que configuramos na pasta config
 const prisma = require('../config/prisma');
 
+// NOVO: Importa o produtor do RabbitMQ!
+const { enviarMensagem } = require('../producers/reserva.producer');
+
 // 1. Listar todas as reservas
 const listar = async (req, res) => {
     try {
@@ -22,7 +25,7 @@ const buscarPorId = async (req, res) => {
 
         if (!reserva) {
             res.send(404, { erro: "Reserva não encontrada." });
-            return; // Encerra a função aqui se não achar
+            return; 
         }
 
         res.send(200, reserva);
@@ -35,7 +38,6 @@ const buscarPorId = async (req, res) => {
 // 3. Criar uma nova reserva
 const criar = async (req, res) => {
     try {
-        // Extrai os dados do corpo da requisição (JSON)
         const {
             reserva_checkin,
             reserva_checkout,
@@ -46,7 +48,6 @@ const criar = async (req, res) => {
             tipo_quarto_id
         } = req.body;
 
-        // Cria no banco usando Prisma
         const novaReserva = await prisma.reserva.create({
             data: {
                 reserva_checkin: new Date(reserva_checkin),
@@ -58,6 +59,18 @@ const criar = async (req, res) => {
                 tipo_quarto_id: parseInt(tipo_quarto_id)
             }
         });
+
+        // =========================================================
+        // NOVO: AVISA A REDE QUE A RESERVA FOI CRIADA
+        // =========================================================
+        await enviarMensagem({
+            evento: 'RESERVA_CRIADA',
+            reserva_id: novaReserva.reserva_id,
+            cliente_id: novaReserva.cliente_id,
+            quarto_id: novaReserva.quarto_id,
+            status: novaReserva.reserva_status
+        });
+        // =========================================================
 
         res.send(201, novaReserva);
     } catch (error) {
@@ -72,13 +85,19 @@ const atualizar = async (req, res) => {
         const id = parseInt(req.params.id);
         const dados = req.body;
 
-        // Se datas forem enviadas na atualização, precisam ser convertidas
         if (dados.reserva_checkin) dados.reserva_checkin = new Date(dados.reserva_checkin);
         if (dados.reserva_checkout) dados.reserva_checkout = new Date(dados.reserva_checkout);
 
         const reservaAtualizada = await prisma.reserva.update({
             where: { reserva_id: id },
             data: dados
+        });
+
+        // NOVO: Pode avisar a rede que a reserva foi atualizada (Opcional, mas recomendado)
+        await enviarMensagem({
+            evento: 'RESERVA_ATUALIZADA',
+            reserva_id: reservaAtualizada.reserva_id,
+            status: reservaAtualizada.reserva_status
         });
 
         res.send(200, reservaAtualizada);
@@ -97,14 +116,19 @@ const deletar = async (req, res) => {
             where: { reserva_id: id }
         });
 
-        res.send(204); // 204 significa "No Content" (Sucesso sem corpo de resposta)
+        // NOVO: Pode avisar a rede que a reserva foi cancelada/removida (Opcional)
+        await enviarMensagem({
+            evento: 'RESERVA_REMOVIDA',
+            reserva_id: id
+        });
+
+        res.send(204); 
     } catch (error) {
         console.error("Erro ao deletar:", error);
         res.send(500, { erro: "Erro interno ao deletar a reserva." });
     }
 };
 
-// Exporta todas as funções com os nomes exatos
 module.exports = {
     listar,
     buscarPorId,
