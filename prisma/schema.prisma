@@ -7,17 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Reserva {
+model reserva {
   reserva_id       Int      @id @default(autoincrement())
-  reserva_checkin  DateTime
-  reserva_checkout DateTime
+  reserva_checkin  DateTime @db.DateTime(0)
+  reserva_checkout DateTime @db.DateTime(0)
   reserva_status   Int
-  cliente_id       Int?
+  cliente_id       Int
   quarto_id        Int?
-  status_pagamento Int?
+  pagamento_status Int?
   tipo_quarto_id   Int
-
-  @@index([cliente_id])
-  @@index([quarto_id])
-  @@index([reserva_checkin, reserva_checkout])
 }

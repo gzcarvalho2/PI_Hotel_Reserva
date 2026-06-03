@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
-  },
+  "dev": "infisical run --path=\"/reserva\" -- nodemon --no-warnings src/server.js",
+  "start": "infisical run --path=\"/reserva\" -- node --no-warnings src/server.js"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "amqplib": "^2.0.1",
     "dotenv": "^17.4.2",
     "restify": "^11.1.0"
   },
