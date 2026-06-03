@@ -11,5 +11,11 @@ services:
     command: >
       sh -c "
       npx prisma db push &&
-      npm run dev
+      npm start
       "
+    networks:
+      - hotel-network
+
+networks:
+  hotel-network:
+    external: true

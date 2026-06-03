@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "scripts": {
-  "dev": "infisical run --path=\"/reserva\" -- nodemon --no-warnings src/server.js",
-  "start": "infisical run --path=\"/reserva\" -- node --no-warnings src/server.js"
-},
+    "dev": "infisical run --path=\"/reserva\" -- nodemon --no-warnings src/server.js",
+    "start": "node --no-warnings src/server.js"
+  },
 
   "keywords": [],
   "author": "",
