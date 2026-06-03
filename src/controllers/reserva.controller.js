@@ -44,7 +44,7 @@ const criar = async (req, res) => {
             reserva_status,
             cliente_id,
             quarto_id,
-            status_pagamento,
+            pagamento_status, // <-- Corrigido aqui
             tipo_quarto_id
         } = req.body;
 
@@ -55,10 +55,12 @@ const criar = async (req, res) => {
                 reserva_status: parseInt(reserva_status),
                 cliente_id: cliente_id ? parseInt(cliente_id) : null,
                 quarto_id: quarto_id ? parseInt(quarto_id) : null,
-                status_pagamento: status_pagamento ? parseInt(status_pagamento) : null,
+                pagamento_status: pagamento_status ? parseInt(pagamento_status) : null, // <-- Corrigido aqui
                 tipo_quarto_id: parseInt(tipo_quarto_id)
             }
         });
+
+        // ... resto do código (RabbitMQ) ...
 
         // =========================================================
         // NOVO: AVISA A REDE QUE A RESERVA FOI CRIADA

@@ -6,7 +6,7 @@ pipeline {
 
         stage('Fetch Secrets') {
             steps {
-                sh 'npx -y @infisical/cli export --env="dev" --path="/reserva" --token="st.333517ed-deea-40e5-b7e2-e030a662a2b6.988191099ff97d2ecd98b11e35f9f3cd.8a112389d0edbeab052e034c6fdbe73c" > .env'
+                sh 'npx -y @infisical/cli export --env="dev" --path="/reserva" --token="st.4b539ca4-50f7-4edb-a932-86047d6ab1a2.0caa1140598679790043d46a09e07e89.92b4a8d2d98d6a1e9247a0fb0aff39e6" > .env'
             }
         }
 
