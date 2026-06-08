@@ -1,5 +1,4 @@
 services:
-
   hotel-reserva:
     build: .
     container_name: hotel-reserva
@@ -13,9 +12,3 @@ services:
       npx prisma db push &&
       npm start
       "
-    networks:
-      - hotel-network
-
-networks:
-  hotel-network:
-    external: true
