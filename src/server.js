@@ -15,7 +15,8 @@ require('./routes/reserva.routes')(server);
 
 const PORT = 9532;
 
-server.listen(PORT, async () => { 
+// ADICIONE O '0.0.0.0' AQUI:
+server.listen(PORT, '0.0.0.0', async () => { 
     try {
         console.log(`${server.name} a correr em ${server.url}`); 
         
