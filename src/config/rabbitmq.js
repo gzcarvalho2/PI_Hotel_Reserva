@@ -8,9 +8,9 @@ async function connectRabbitMQ() {
 
     channel = await connection.createChannel();
 
-    await channel.assertQueue('reserva_status');
+    await channel.assertExchange('reserva_events', 'fanout', { durable: false });
 
-    console.log('RabbitMQ conectado');
+    console.log('RabbitMQ conectado e Exchange configurado');
 }
 
 function getChannel() {

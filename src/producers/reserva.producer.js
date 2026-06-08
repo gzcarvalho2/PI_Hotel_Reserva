@@ -9,23 +9,23 @@ const enviarMensagem = async (dados) => {
             return;
         }
 
-        // A fila onde vamos jogar os eventos de Reserva (que já está configurada no seu rabbitmq.js)
-        const fila = 'reserva_status';
+        // MUDANÇA 1: Não usamos mais o nome de uma fila específica
+        // Usamos o nome do Exchange que será configurado no rabbitmq.js
+        const exchange = 'reserva_events';
 
-        // O RabbitMQ só entende mensagens em formato Buffer (bytes), por isso convertemos o JSON
         const mensagem = Buffer.from(JSON.stringify(dados));
 
-        // Dispara a mensagem para a fila
-        channel.sendToQueue(fila, mensagem);
+        // MUDANÇA 2: Usamos 'publish' em vez de 'sendToQueue'
+        // O primeiro argumento é o exchange, o segundo é a chave de roteamento (vazia para fanout)
+        channel.publish(exchange, '', mensagem);
 
-        console.log(`[Producer] 📤 Mensagem enviada: ${dados.evento} (Reserva ID: ${dados.reserva_id})`);
+        console.log(`[Producer] 📤 Mensagem enviada para o Exchange '${exchange}': ${dados.evento}`);
         
     } catch (error) {
         console.error('[Producer] Falha ao enviar mensagem para o RabbitMQ:', error);
     }
 };
 
-// Exporta a função para que o controller a consiga usar
 module.exports = {
     enviarMensagem
 };

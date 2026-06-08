@@ -27,7 +27,7 @@ const iniciarConsumidorPagamento = async () => {
                         await prisma.reserva.update({
                             where: { reserva_id: dadosEvento.reserva_id },
                             data: { 
-                                status_pagamento: 1, // Ex: 1 = Pago
+                                pagamento_status: 1, // Ex: 1 = Pago
                                 reserva_status: 2    // Ex: 2 = Confirmada
                             }
                         });
