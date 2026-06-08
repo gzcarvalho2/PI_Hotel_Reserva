@@ -17,7 +17,9 @@ const iniciarConsumidorPagamento = async () => {
         channel.consume(fila, async (msg) => {
             if (msg !== null) {
                 const dadosEvento = JSON.parse(msg.content.toString());
-                console.log(`[Consumer] 📥 Pagamento processado para a Reserva ID:`, dadosEvento.reserva_id);
+                
+                // MUDAR AQUI: Imprime o JSON inteiro para você inspecionar!
+                console.log(`[Consumer] 🕵️ DADOS COMPLETOS DO CLIENTE:`, dadosEvento);
 
                 try {
                     // Se o pagamento foi aprovado, atualiza a reserva no Prisma!

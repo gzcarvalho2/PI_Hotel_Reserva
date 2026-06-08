@@ -5,7 +5,7 @@ const iniciarConsumidorCliente = async () => {
     try {
         const channel = getChannel();
         
-        const fila = 'cliente_status'; 
+        const fila = 'cliente_criado'; 
 
         await channel.assertQueue(fila);
         console.log(`[Consumer] 🎧 Reserva aguardando eventos na fila '${fila}'...`);
@@ -13,9 +13,12 @@ const iniciarConsumidorCliente = async () => {
         channel.consume(fila, async (msg) => {
             if (msg !== null) {
                 const dadosEvento = JSON.parse(msg.content.toString());
-                console.log(`[Consumer] 📥 Evento de Cliente recebido:`, dadosEvento.evento);
+                
+                // MUDAR AQUI: Imprime o JSON inteiro para você inspecionar!
+                console.log(`[Consumer] 🕵️ DADOS COMPLETOS DO CLIENTE:`, dadosEvento);
 
                 try {
+                    // ... resto do seu código
                     // Se o cliente excluir a conta
                     if (dadosEvento.evento === 'CLIENTE_REMOVIDO') {
                         // Como o Prisma permite que cliente_id seja null, nós apenas removemos a referência

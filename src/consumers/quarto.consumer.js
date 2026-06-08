@@ -14,7 +14,9 @@ const iniciarConsumidorQuarto = async () => {
         channel.consume(fila, async (msg) => {
             if (msg !== null) {
                 const dadosEvento = JSON.parse(msg.content.toString());
-                console.log(`[Consumer] 📥 Evento de Quarto recebido:`, dadosEvento.evento);
+                
+                // MUDAR AQUI: Imprime o JSON inteiro para você inspecionar!
+                console.log(`[Consumer] 🕵️ DADOS COMPLETOS DO CLIENTE:`, dadosEvento);
 
                 try {
                     // Se o quarto for removido do sistema, cancelamos as reservas futuras vinculadas a ele
