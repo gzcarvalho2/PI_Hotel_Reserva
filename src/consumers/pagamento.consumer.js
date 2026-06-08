@@ -6,7 +6,7 @@ const iniciarConsumidorPagamento = async () => {
         const channel = getChannel();
         
         // Esta é a fila onde o microsserviço de Pagamento vai jogar as respostas
-        const fila = 'pagamento_status'; 
+        const fila = 'pagamento_queue'; 
 
         // Garante que a fila existe no RabbitMQ
         await channel.assertQueue(fila);
