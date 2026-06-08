@@ -3,7 +3,7 @@ const ReservaController = require('../controllers/reserva.controller');
 
 module.exports = (server) => {
     server.get("/reservas", ReservaController.listar); 
-    server.post("/reservas", ReservaController.criar); 
+    server.post("/criar", ReservaController.criar); 
     server.get("/reservas/:id", ReservaController.buscarPorId); 
     server.put("/reservas/:id", ReservaController.atualizar); 
     server.del("/reservas/:id", ReservaController.deletar);
