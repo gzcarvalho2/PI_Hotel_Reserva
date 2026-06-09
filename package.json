@@ -15,7 +15,8 @@
     "amqplib": "^2.0.1",
     "axios": "^1.17.0",
     "dotenv": "^17.4.2",
-    "restify": "^11.1.0"
+    "restify": "^11.1.0",
+    "restify-cors-middleware2": "^2.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14",
