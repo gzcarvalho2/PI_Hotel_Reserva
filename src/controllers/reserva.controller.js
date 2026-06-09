@@ -1,8 +1,12 @@
 // Importa a instância do Prisma que configuramos na pasta config
 const prisma = require('../config/prisma');
 
-// NOVO: Importa o produtor do RabbitMQ!
+// Importa o produtor do RabbitMQ!
 const { enviarMensagem } = require('../producers/reserva.producer');
+
+// Importação dos serviços de comunicação com outros microsserviços (AXIOS)
+const quartoService = require('../services/quarto.service');
+const clienteService = require('../services/cliente.service');
 
 // 1. Listar todas as reservas
 const listar = async (req, res) => {
@@ -44,9 +48,41 @@ const criar = async (req, res) => {
             reserva_status,
             cliente_id,
             quarto_id,
-            pagamento_status, // <-- Corrigido aqui
+            pagamento_status,
             tipo_quarto_id
         } = req.body;
+
+        // =========================================================
+        // VALIDAÇÃO SÍNCRONA: CLIENTE (AXIOS)
+        // =========================================================
+        if (cliente_id) {
+            try {
+                await clienteService.validarCliente(cliente_id);
+            } catch (apiError) {
+                console.error("[Controller] Erro na validação do cliente:", apiError.message);
+                res.send(400, { erro: apiError.message });
+                return; // Impede a criação da reserva
+            }
+        }
+
+        // =========================================================
+        // VALIDAÇÃO SÍNCRONA: QUARTO (AXIOS)
+        // =========================================================
+        if (quarto_id && reserva_checkin && reserva_checkout) {
+            try {
+                const quartoDisponivel = await quartoService.verificarDisponibilidade(quarto_id, reserva_checkin, reserva_checkout);
+                
+                if (!quartoDisponivel) {
+                    res.send(400, { erro: "O quarto selecionado não está disponível nestas datas." });
+                    return; // Impede a criação no Prisma
+                }
+            } catch (apiError) {
+                console.error("[Controller] Erro na validação do quarto:", apiError.message);
+                res.send(400, { erro: apiError.message || "Erro ao validar a disponibilidade do quarto." });
+                return;
+            }
+        }
+        // =========================================================
 
         const novaReserva = await prisma.reserva.create({
             data: {
@@ -55,15 +91,13 @@ const criar = async (req, res) => {
                 reserva_status: parseInt(reserva_status),
                 cliente_id: cliente_id ? parseInt(cliente_id) : null,
                 quarto_id: quarto_id ? parseInt(quarto_id) : null,
-                pagamento_status: pagamento_status ? parseInt(pagamento_status) : null, // <-- Corrigido aqui
+                pagamento_status: pagamento_status ? parseInt(pagamento_status) : null,
                 tipo_quarto_id: parseInt(tipo_quarto_id)
             }
         });
 
-        // ... resto do código (RabbitMQ) ...
-
         // =========================================================
-        // NOVO: AVISA A REDE QUE A RESERVA FOI CRIADA
+        // AVISA A REDE QUE A RESERVA FOI CRIADA (RabbitMQ)
         // =========================================================
         await enviarMensagem({
             evento: 'RESERVA_CRIADA',
@@ -95,7 +129,7 @@ const atualizar = async (req, res) => {
             data: dados
         });
 
-        // NOVO: Pode avisar a rede que a reserva foi atualizada (Opcional, mas recomendado)
+        // Avisar a rede que a reserva foi atualizada
         await enviarMensagem({
             evento: 'RESERVA_ATUALIZADA',
             reserva_id: reservaAtualizada.reserva_id,
@@ -118,7 +152,7 @@ const deletar = async (req, res) => {
             where: { reserva_id: id }
         });
 
-        // NOVO: Pode avisar a rede que a reserva foi cancelada/removida (Opcional)
+        // Avisar a rede que a reserva foi cancelada/removida
         await enviarMensagem({
             evento: 'RESERVA_REMOVIDA',
             reserva_id: id
