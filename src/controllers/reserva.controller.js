@@ -67,19 +67,52 @@ const criar = async (req, res) => {
 
         // =========================================================
         // VALIDAÇÃO SÍNCRONA: QUARTO (AXIOS)
+        // Garante que o quarto existe e está habilitado para reserva (status 1 = Disponível).
+        // status 2 (Ocupado manual) ou 3 (Manutenção) bloqueiam a reserva.
         // =========================================================
         if (quarto_id && reserva_checkin && reserva_checkout) {
             try {
                 const quartoDisponivel = await quartoService.verificarDisponibilidade(quarto_id, reserva_checkin, reserva_checkout);
-                
+
                 if (!quartoDisponivel) {
-                    res.send(400, { erro: "O quarto selecionado não está disponível nestas datas." });
+                    res.send(400, { erro: "O quarto selecionado não está disponível para reserva." });
                     return; // Impede a criação no Prisma
                 }
             } catch (apiError) {
                 console.error("[Controller] Erro na validação do quarto:", apiError.message);
                 res.send(400, { erro: apiError.message || "Erro ao validar a disponibilidade do quarto." });
                 return;
+            }
+        }
+
+        // =========================================================
+        // VALIDAÇÃO: CONFLITO DE DATAS (sobreposição com reservas ativas)
+        // Um quarto está ocupado em [checkin, checkout) se já houver reserva ativa
+        // (status 1 = Pendente ou 2 = Confirmada) cujo intervalo se sobrepõe.
+        // Regra de sobreposição: existente.checkin < novo.checkout  E  existente.checkout > novo.checkin
+        // (checkout é exclusivo — o quarto liberado no dia do checkout pode ser reservado no mesmo dia)
+        // =========================================================
+        if (quarto_id && reserva_checkin && reserva_checkout) {
+            const checkinDate = new Date(reserva_checkin);
+            const checkoutDate = new Date(reserva_checkout);
+
+            if (isNaN(checkinDate) || isNaN(checkoutDate) || checkoutDate <= checkinDate) {
+                res.send(400, { erro: "Datas inválidas: o check-out deve ser posterior ao check-in." });
+                return;
+            }
+
+            const conflito = await prisma.reserva.findFirst({
+                where: {
+                    quarto_id: parseInt(quarto_id),
+                    reserva_status: { in: [1, 2] }, // pendente ou confirmada
+                    reserva_checkin: { lt: checkoutDate },
+                    reserva_checkout: { gt: checkinDate }
+                }
+            });
+
+            if (conflito) {
+                res.send(409, { erro: "Já existe uma reserva para este quarto no período selecionado." });
+                return; // Impede o overbooking
             }
         }
         // =========================================================
