@@ -37,8 +37,8 @@ const iniciarConsumidorPagamento = async () => {
                     else if (dadosEvento.evento === 'PAGAMENTO_RECUSADO') {
                         await prisma.reserva.update({
                             where: { reserva_id: dadosEvento.reserva_id },
-                            data: { 
-                                status_pagamento: 2, // Ex: 2 = Recusado
+                            data: {
+                                pagamento_status: 2, // Ex: 2 = Recusado
                                 reserva_status: 3    // Ex: 3 = Cancelada
                             }
                         });
