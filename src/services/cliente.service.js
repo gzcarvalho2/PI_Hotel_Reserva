@@ -8,7 +8,7 @@ const URL_MS_CLIENTE = (process.env.CLIENTE_API_URL || 'http://ip_do_colega:port
 // Gera token de serviço usando o mesmo JWT_SECRET compartilhado entre os microsserviços
 const gerarTokenServico = () => {
     return jwt.sign(
-        { id: 0, login: 'reserva-service', role: 'Service' },
+        { id: 0, login: 'reserva-service', role: 'Admin' },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );
