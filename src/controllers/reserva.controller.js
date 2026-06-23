@@ -57,7 +57,7 @@ const criar = async (req, res) => {
         // =========================================================
         if (cliente_id) {
             try {
-                await clienteService.validarCliente(cliente_id);
+                await clienteService.validarCliente(cliente_id, req.headers.authorization);
             } catch (apiError) {
                 console.error("[Controller] Erro na validação do cliente:", apiError.message);
                 res.send(400, { erro: apiError.message });
@@ -72,7 +72,7 @@ const criar = async (req, res) => {
         // =========================================================
         if (quarto_id && reserva_checkin && reserva_checkout) {
             try {
-                const quartoDisponivel = await quartoService.verificarDisponibilidade(quarto_id, reserva_checkin, reserva_checkout);
+                const quartoDisponivel = await quartoService.verificarDisponibilidade(quarto_id, reserva_checkin, reserva_checkout, req.headers.authorization);
 
                 if (!quartoDisponivel) {
                     res.send(400, { erro: "O quarto selecionado não está disponível para reserva." });
