@@ -9,9 +9,13 @@ const quartoService = require('../services/quarto.service');
 const clienteService = require('../services/cliente.service');
 
 // 1. Listar todas as reservas
+// Admin vê todas; cliente vê só as próprias (filtrado pelo cliente_id do JWT)
 const listar = async (req, res) => {
     try {
-        const reservas = await prisma.reserva.findMany();
+        const where = req.user.role !== 'Admin'
+            ? { cliente_id: req.user.cliente_id }
+            : {};
+        const reservas = await prisma.reserva.findMany({ where });
         res.send(200, reservas);
     } catch (error) {
         console.error("Erro ao listar:", error);
@@ -20,6 +24,7 @@ const listar = async (req, res) => {
 };
 
 // 2. Buscar uma reserva específica por ID
+// Admin acessa qualquer; cliente só acessa a própria
 const buscarPorId = async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -29,7 +34,12 @@ const buscarPorId = async (req, res) => {
 
         if (!reserva) {
             res.send(404, { erro: "Reserva não encontrada." });
-            return; 
+            return;
+        }
+
+        if (req.user.role !== 'Admin' && reserva.cliente_id !== req.user.cliente_id) {
+            res.send(403, { erro: 'Acesso negado.' });
+            return;
         }
 
         res.send(200, reserva);
